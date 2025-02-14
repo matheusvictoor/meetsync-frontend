@@ -56,7 +56,6 @@ const VotingRoom = () => {
         const apiRoom = await getRoom(roomId);
 
         setRoom(apiRoom);
-        console.log('apiRoom:', apiRoom);
         setTimeSlots(adaptTimeSlots(apiRoom));
       } catch (error) {
         console.error('Erro ao buscar a sala:', error);
@@ -115,7 +114,6 @@ const VotingRoom = () => {
 
     const votePromise = postVote(newVote);
 
-    console.log('votePromise', votePromise);
     toast.promise(votePromise, {
       loading: 'Registrando voto...',
       success: 'Voto registrado com sucesso.',
