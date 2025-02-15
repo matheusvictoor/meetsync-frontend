@@ -1,6 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Calendar as CalendarIcon, CalendarCheck, Trash2, X, CirclePlus } from 'lucide-react';
-import { format } from 'date-fns';
+import { addDays, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { Calendar } from '@/components/ui/calendar';
 import { Button } from '@/components/ui/button';
@@ -21,7 +21,8 @@ const CreateRoom = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialName = location.state?.name || '';
-
+  const minDate = addDays(new Date(), 1);
+  
   const {
     register,
     handleSubmit,
@@ -179,7 +180,7 @@ const CreateRoom = () => {
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent className="w-auto p-0" align="start">
-                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} fromDate={new Date()} initialFocus locale={ptBR} />
+                              <Calendar mode="single" selected={field.value} onSelect={field.onChange} fromDate={minDate} initialFocus locale={ptBR} />
                             </PopoverContent>
                           </Popover>
                         )}

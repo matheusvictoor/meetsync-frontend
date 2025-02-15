@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { compareAsc, format, parseISO } from 'date-fns';
+import { compareAsc, format, isBefore, parseISO } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { ptBR } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -24,13 +24,16 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { voteSchema } from '@/schemas/voteShema';
 import { TimeSlot, Vote } from '@/types/vote';
 import { RoomAPIResponse } from '@/types/room';
+import VotingClosedDialog from './VotingClosedDialog';
 
 const VotingRoom = () => {
   const { roomId } = useParams();
-  const [showShareDialog, setShowShareDialog] = useState(true);
+  const [isVotingClosed, setIsVotingClosed] = useState(false);
   const [showVotersDialog, setShowVotersDialog] = useState(false);
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [room, setRoom] = useState<RoomAPIResponse>(null);
+  const [showShareDialog, setShowShareDialog] = useState(false);
+  const closedVote = isBefore(parseISO(room?.endingAt), new Date());
 
   const {
     register,
@@ -57,6 +60,12 @@ const VotingRoom = () => {
 
         setRoom(apiRoom);
         setTimeSlots(adaptTimeSlots(apiRoom));
+
+        if (closedVote) {
+          setIsVotingClosed(true);
+        } else {
+          setShowShareDialog(true);
+        }
       } catch (error) {
         console.error('Erro ao buscar a sala:', error);
         toast.error('Erro ao carregar a sala de votação.');
@@ -66,7 +75,7 @@ const VotingRoom = () => {
     if (roomId) {
       fetchRoom(roomId);
     }
-  }, [roomId]);
+  }, [closedVote, roomId]);
 
   const groupedSlots: { [key: string]: TimeSlot[] } = {};
   timeSlots.forEach((slot) => {
@@ -84,6 +93,11 @@ const VotingRoom = () => {
   const onSubmit = async (data: FieldValues) => {
     if (!room) {
       toast.error('Erro ao carregar a sala. Tente novamente.');
+      return;
+    }
+
+    if (closedVote) {
+      setIsVotingClosed(true);
       return;
     }
 
@@ -302,7 +316,9 @@ const VotingRoom = () => {
           selectedSlotForVoters={timeSlots.find((slot) => slot.dateTime === getValues('selectedSlots')[0]) || null}
         />
       </TooltipProvider>
-      <ShareDialog open={showShareDialog} onClose={setShowShareDialog} />
+      {!isVotingClosed && <ShareDialog open={showShareDialog} onClose={setShowShareDialog} />}
+
+      {isVotingClosed && <VotingClosedDialog open={isVotingClosed} onClose={setIsVotingClosed} />}
     </div>
   );
 };
