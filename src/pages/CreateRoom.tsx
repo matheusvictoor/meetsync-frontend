@@ -27,7 +27,6 @@ const CreateRoom = () => {
     handleSubmit,
     control,
     setValue,
-    getValues,
     watch,
     formState: { errors, isSubmitting },
   } = useForm({
@@ -231,7 +230,6 @@ const CreateRoom = () => {
                       mode="single"
                       onSelect={handleDateSelect}
                       fromDate={new Date()}
-                      toDate={new Date(getValues('endDate'))}
                       className="flex justify-center rounded-md border w-full h-full"
                       locale={ptBR}
                     />
