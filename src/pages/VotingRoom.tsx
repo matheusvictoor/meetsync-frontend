@@ -33,7 +33,7 @@ const VotingRoom = () => {
   const [timeSlots, setTimeSlots] = useState<TimeSlot[]>([]);
   const [room, setRoom] = useState<RoomAPIResponse>(null);
   const [showShareDialog, setShowShareDialog] = useState(false);
-  const closedVote = isBefore(parseISO(room?.endingAt), new Date());
+  // const closedVote = isBefore(parseISO(room.endingAt), new Date());
 
   const {
     register,
@@ -61,7 +61,7 @@ const VotingRoom = () => {
         setRoom(apiRoom);
         setTimeSlots(adaptTimeSlots(apiRoom));
 
-        if (closedVote) {
+        if (apiRoom.endingAt && isBefore(parseISO(apiRoom.endingAt), new Date())) {
           setIsVotingClosed(true);
         } else {
           setShowShareDialog(true);
@@ -75,7 +75,7 @@ const VotingRoom = () => {
     if (roomId) {
       fetchRoom(roomId);
     }
-  }, [closedVote, roomId]);
+  }, [roomId]);
 
   const groupedSlots: { [key: string]: TimeSlot[] } = {};
   timeSlots.forEach((slot) => {
@@ -96,7 +96,7 @@ const VotingRoom = () => {
       return;
     }
 
-    if (closedVote) {
+    if (isBefore(parseISO(room.endingAt), new Date())) {
       setIsVotingClosed(true);
       return;
     }
